@@ -7,9 +7,26 @@
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
           <a class="nav-item nav-link" href="/urls">My URLs</a>
-          <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+          <a class="nav-item nav-link" href="/urls/new">Create New URL</a> <!---->
+       
+<!---->
         </div>
       </div>
+      <% if(!username) { %>
+      <form class="form-inline" action="/urls/login" method="POST">
+        <div class="form-group mb-2">
+          <label for="name"><b>Enter your username:</b></label>
+          <input class="form-control" type="text" name="username" style="width: 150px; margin: right">
+          <button type="login" class="btn btn-primary">Login</button>
+        </div>
+      </form>
+      <% } else { %>
+        <form class="form-inline" action="/urls/logout" method="POST">
+          <div class="form-group mb-2">
+            <label for="name"><b>Logged in as <%= username %></b></label>
+            <button type="logout" class="btn btn-primary">Logout</button>
+          </div>
+        </form>
+      <% } %>
     </nav>
   </header>
-  
