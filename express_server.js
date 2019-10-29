@@ -2,9 +2,11 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const request = require('request'); //npm install request
 
 app.use(bodyParser.urlencoded({extended:true}));
+app.use(cookieParser())
 
 app.set("view engine", "ejs");
 
@@ -20,6 +22,23 @@ app.get("/", (req, res) => {
 //creates new URL page
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
+});
+
+//stores username in a cookie and logs in
+app.post("/urls/login", (req, res) => {
+  res.cookie("username", req.body.username);
+  res.redirect(`/urls`);
+
+  //let templateVars = {
+  // username: req.cookies["username"],
+  //};
+  //res.render("urls_index", templateVars);
+});
+
+//logs out of user
+app.post("/urls/logout", (req, res) => {
+  res.clearCookie("username");
+  res.redirect(`/urls`);
 });
 
 //deletes short URL from object and returns to url tab
@@ -55,7 +74,7 @@ app.post("/urls", (req, res) => {
 
 //create the url index page
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase };
+  let templateVars = { urls: urlDatabase, username: req.cookies["username"] };
   res.render("urls_index", templateVars);
 });
 
