@@ -17,35 +17,61 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
+//creates new URL page
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-app.post("/urls", (req, res) => {
-  let website = req.body.longURL //returns URL
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
-});
-
+//deletes short URL from object and returns to url tab
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
-  res.redirect("/urls");
+  res.redirect(`/urls`);
 });
 
+//when click edit, goes to shortURL site
+app.post("/urls/:shortURL/edit", (req, res) => {
+  res.redirect(`/urls/${req.params.shortURL}`);
+});
+
+//keeps short URL when changing long URL
+app.post("/urls/:shortURL/submit", (req, res) => {
+  urlDatabase[req.params.shortURL] = req.body.longURL 
+  res.redirect(`/urls/${req.params.shortURL}`);
+});
+
+//if URL exists return URL site otherwise randomly make new code
+app.post("/urls", (req, res) => { 
+  let website = req.body.longURL 
+  for (let url in urlDatabase) {
+    if (urlDatabase[url] === website) {
+      res.redirect(`/urls/${url}`);
+      return
+    }
+  } 
+  let randomNum = "abcdef";
+  urlDatabase[randomNum]=website
+  res.redirect(`/urls/${randomNum}`);
+});
+
+//create the url index page
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
+//GOES TO the long URL website
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
 
+//creates the final tiny URL page
 app.get("/urls/:shortURL", (req, res) => {
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
   res.render("urls_show", templateVars);
 });
 
+//JSON of all URLs
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
