@@ -15,24 +15,22 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {};
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
 //creates new URL page
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let templateVars = { username: req.cookies["username"] };
+  res.render("urls_new", templateVars);
 });
 
 //stores username in a cookie and logs in
 app.post("/urls/login", (req, res) => {
   res.cookie("username", req.body.username);
   res.redirect(`/urls`);
-
-  //let templateVars = {
-  // username: req.cookies["username"],
-  //};
-  //res.render("urls_index", templateVars);
 });
 
 //logs out of user
@@ -58,6 +56,18 @@ app.post("/urls/:shortURL/submit", (req, res) => {
   res.redirect(`/urls/${req.params.shortURL}`);
 });
 
+//registers new account
+app.post("/register", (req, res) => {
+  let randString = generateRandomString(6);
+  users[randString] = {}; 
+  users[randString]["id"] = randString;
+  users[randString]["email"] = req.body.email
+  users[randString]["password"] = req.body.password 
+  res.cookie("user_id", users[randString])
+  //console.log(req.cookies["user_id"])
+  res.redirect(`/urls`);
+});
+
 //if URL exists return URL site otherwise randomly make new code
 app.post("/urls", (req, res) => { 
   let website = req.body.longURL 
@@ -67,7 +77,7 @@ app.post("/urls", (req, res) => {
       return
     }
   } 
-  let randomNum = "abcdef";
+  let randomNum = generateRandomString(6); //**make this a callback to avoid duplicate shortURLs???
   urlDatabase[randomNum]=website
   res.redirect(`/urls/${randomNum}`);
 });
@@ -78,6 +88,12 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+//creates user account
+app.get("/register", (req,res) => {
+  let templateVars = { username: req.cookies["username"] };
+  res.render("createAccount", templateVars);
+});
+
 //GOES TO the long URL website
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
@@ -86,7 +102,7 @@ app.get("/u/:shortURL", (req, res) => {
 
 //creates the final tiny URL page
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
   res.render("urls_show", templateVars);
 });
 
@@ -103,8 +119,14 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
-function generateRandomString() {
-
+function generateRandomString(length) {
+  var result = "";
+  var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  var charactersLength = characters.length;
+  for ( var i = 0; i < length; i++ ) {
+     result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
 }
 
 // request(shortURL, function(error, response, body) {
