@@ -21,11 +21,11 @@ let userData = {
 };
 
 const users = {
-  "userRandomID": {
-    id: "userRandomID", 
-    email: "samuelrush@gmail.com", 
-    password: "sam"
-  },
+  // "userRandomID": {
+  //   id: "userRandomID", 
+  //   email: "samuelrush@gmail.com", 
+  //   password: "sam"
+  // },
 };
 
 app.get("/", (req, res) => {
@@ -90,7 +90,7 @@ app.post("/login", (req, res) => {
   }
   for (let key in users) {
     if(emailAddress === users[key]["email"]) {
-      if(req.body.password === users[key]["password"]) {
+      if(bcrypt.compareSync(req.body.password, users[key]["password"])) {
         res.cookie("user_id", users[key])
         //makes user specific urlDatabase
         for (let item in urlDatabase){
@@ -121,7 +121,7 @@ app.post("/register", (req, res) => {
   users[randString] = {}; 
   users[randString]["id"] = randString;
   users[randString]["email"] = req.body.email
-  users[randString]["password"] = req.body.password 
+  users[randString]["password"] = bcrypt.hashSync(req.body.password,10) 
   res.cookie("user_id", users[randString])
 
   res.redirect(`/urls`);
