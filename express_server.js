@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session")
 const request = require('request'); //npm install request
 const bcrypt = require('bcrypt');
+const { getUserByEmail } = require("./helpers");
 
 app.use(bodyParser.urlencoded({extended:true}));
 //app.use(cookieParser())
@@ -238,6 +239,7 @@ function checkEmail(email,booVar) {
   }
   return booVar
 }
+
 
 // request(shortURL, function(error, response, body) {
 //   if (error !== null){
