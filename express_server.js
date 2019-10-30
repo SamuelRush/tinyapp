@@ -216,6 +216,7 @@ function generateRandomString(length) {
 
 function checkEmail(email) { //** login as samuelrush, make samrush, login as samuelrush... cant login as samrush?
   for (let key in users) {
+    console.log("1",users[key]["email"],"2",email)
     if(email === users[key]["email"]) {
       return true;
     } else {
