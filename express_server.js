@@ -22,9 +22,14 @@ app.get("/", (req, res) => {
 });
 
 //creates new URL page
-app.get("/urls/new", (req, res) => {
-  let templateVars = { user_id: req.cookies["user_id"] };
-  res.render("urls_new", templateVars);
+app.get("/urls/new", (req, res) => { //----------------
+  if (req.cookies.user_id !== undefined) {
+    let templateVars = { user_id: req.cookies["user_id"] };
+    res.render("urls_new", templateVars);
+  } else {
+    res.redirect(`/login`);
+  }
+
 });
 
 //logs out of user
