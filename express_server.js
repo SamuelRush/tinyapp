@@ -4,6 +4,7 @@ const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const request = require('request'); //npm install request
+const bcrypt = require('bcrypt');
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(cookieParser())
