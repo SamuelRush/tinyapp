@@ -58,7 +58,7 @@ app.get("/urls/new", (req, res) => { //1111111111
 app.post("/urls/logout", (req, res) => {
   userData = {};
   //was (with cookie): res.clearCookie("user_id");
-  req.session.user_id = null; //333333333333333
+  req.session = null; //333333333333333
   res.redirect(`/urls`);
 });
 
@@ -87,7 +87,8 @@ app.post("/urls/:shortURL/submit", (req, res) => {
   if (req.session.user_id.id === userData[req.params.shortURL].userID) {
   urlDatabase[req.params.shortURL]["longURL"] = req.body.longURL 
   userData[req.params.shortURL]["longURL"] = req.body.longURL 
-  res.redirect(`/urls/${req.params.shortURL}`);
+  res.redirect(`/urls`);
+  //res.redirect(`/urls/${req.params.shortURL}`);
 } else {
   res.redirect(`/access`);
 }
@@ -179,9 +180,14 @@ app.get("/access", (req, res) => {
 });
 
 //creates login page
-app.get("/login", (req,res) => {
-  let templateVars = { user_id: req.session["user_id"] };
-  res.render("loginPage", templateVars);
+app.get("/login", (req,res) => {//RIIIIGHT HERE
+  if (req.session["user_id"] === undefined) {
+    let templateVars = { user_id: req.session["user_id"] };
+    res.render("loginPage", templateVars);
+  } else {
+    res.redirect(`/urls`);
+  }
+  
 });
 
 //creates user account
@@ -192,16 +198,20 @@ app.get("/register", (req,res) => {
 
 //GOES TO the long URL website
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(longURL);
+  if(urlDatabase[req.params.shortURL]===undefined) {
+    res.redirect(`/access`);
+  } else {
+    const longURL = urlDatabase[req.params.shortURL].longURL;
+    res.redirect(longURL);
+  }
 });
 
 //creates the final tiny URL page
 app.get("/urls/:shortURL", (req, res) => {
 
   if(userData[req.params.shortURL] instanceof Object) {
-  let templateVars = { shortURL: req.params.shortURL, longURL: userData[req.params.shortURL], user_id: req.session["user_id"] };
-  res.render("urls_show", templateVars);
+    let templateVars = { shortURL: req.params.shortURL, longURL: userData[req.params.shortURL], user_id: req.session["user_id"] };
+    res.render("urls_show", templateVars);
   } else {
     res.redirect(`/access`);
   }
@@ -210,6 +220,10 @@ app.get("/urls/:shortURL", (req, res) => {
 //JSON of all URLs
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
+});
+
+app.get("*", (req, res) => {
+  res.redirect(`/access`);
 });
 
 app.get("/hello", (req, res) => {
