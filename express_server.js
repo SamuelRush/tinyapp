@@ -11,18 +11,24 @@ app.use(cookieParser())
 app.set("view engine", "ejs");
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID"},
+  "9sm5xK": { longURL: "http://www.google.com", userID: "userRandomID"},
 };
 
-const users = {};
+const users = {
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+};
 
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
 //creates new URL page
-app.get("/urls/new", (req, res) => { //----------------
+app.get("/urls/new", (req, res) => { //1111111111
   if (req.cookies.user_id !== undefined) {
     let templateVars = { user_id: req.cookies["user_id"] };
     res.render("urls_new", templateVars);
@@ -51,7 +57,7 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 
 //keeps short URL when changing long URL
 app.post("/urls/:shortURL/submit", (req, res) => {
-  urlDatabase[req.params.shortURL] = req.body.longURL 
+  urlDatabase[req.params.shortURL]["longURL"] = req.body.longURL 
   res.redirect(`/urls/${req.params.shortURL}`);
 });
 
@@ -95,13 +101,15 @@ app.post("/register", (req, res) => {
 app.post("/urls", (req, res) => { 
   let website = req.body.longURL 
   for (let url in urlDatabase) {
-    if (urlDatabase[url] === website) {
+    if (urlDatabase[url]["longURL"] === website) {
       res.redirect(`/urls/${url}`);
       return
     }
   } 
   let randomNum = generateRandomString(6); //**make this a callback to avoid duplicate shortURLs???
-  urlDatabase[randomNum]=website
+  urlDatabase[randomNum] = {}
+  urlDatabase[randomNum]["longURL"] = website //-----------
+  urlDatabase[randomNum]["userID"] = req.cookies.user_id.id
   res.redirect(`/urls/${randomNum}`);
 });
 
