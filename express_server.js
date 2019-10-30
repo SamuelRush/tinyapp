@@ -3,11 +3,20 @@ const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const cookieSession = require("cookie-session")
 const request = require('request'); //npm install request
 const bcrypt = require('bcrypt');
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(cookieParser())
+// ** have not implemented this yet
+// app.use(cookieSession({
+//   name: 'session',
+//   keys: [/* secret keys */],
+
+//   // Cookie Options
+//   maxAge: 24 * 60 * 60 * 1000 // 24 hours
+// }))
 
 app.set("view engine", "ejs");
 
