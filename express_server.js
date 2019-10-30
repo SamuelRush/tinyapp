@@ -53,7 +53,7 @@ app.post("/urls/:shortURL/submit", (req, res) => {
 //on log in...
 app.post("/login", (req, res) => {
   const emailAddress = req.body.email
-  if (checkEmail(emailAddress) === false) { //** doesn't error out if email doesnt exist
+  if (checkEmail(emailAddress) === false || checkEmail(emailAddress) === undefined) {
     res.send("Error 403, email address does not exist.");
     return;
   }
@@ -83,7 +83,6 @@ app.post("/register", (req, res) => {
   users[randString]["email"] = req.body.email
   users[randString]["password"] = req.body.password 
   res.cookie("user_id", users[randString])
-  //console.log(req.cookies["user_id"]["email"])
   res.redirect(`/urls`);
 });
 
