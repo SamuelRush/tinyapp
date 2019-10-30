@@ -131,7 +131,24 @@ app.post("/register", (req, res) => {
 app.post("/urls", (req, res) => {
   let website = req.body.longURL;
   for (let url in urlDatabase) {
-    if (urlDatabase[url]["longURL"] === website && userData[url] === urlDatabase[url]) {
+    const eqArrays = function() {
+      let answer = true;
+      if (userData[url] === undefined || urlDatabase[url] === undefined) {
+        return false;
+      }
+      let one = userData[url]["userID"];
+      let two = urlDatabase[url]["userID"];
+    
+      for (let x = 0; x < one.length; x++) {
+        if (one[x] !== two[x]) answer = false;
+      }
+      for (let x = 0; x < two.length; x++) {
+        if (one[x] !== two[x]) answer = false;
+      }
+      return answer;
+    };
+
+    if (urlDatabase[url]["longURL"] === website && eqArrays() === true) {
       res.redirect(`/urls/${url}`);
       return;
     }
@@ -147,7 +164,7 @@ app.post("/urls", (req, res) => {
 });
 
 //create the url index page
-app.get("/urls", (req, res) => { 
+app.get("/urls", (req, res) => {
   if (req.session.user_id !== undefined) {
     let templateVars = { urls: userData, user_id: req.session["user_id"] };
     res.render("urls_index", templateVars);
