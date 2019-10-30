@@ -23,19 +23,13 @@ app.get("/", (req, res) => {
 
 //creates new URL page
 app.get("/urls/new", (req, res) => {
-  let templateVars = { username: req.cookies["username"] };
+  let templateVars = { user_id: req.cookies["user_id"] };
   res.render("urls_new", templateVars);
-});
-
-//stores username in a cookie and logs in
-app.post("/urls/login", (req, res) => {
-  res.cookie("username", req.body.username);
-  res.redirect(`/urls`);
 });
 
 //logs out of user
 app.post("/urls/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect(`/urls`);
 });
 
@@ -56,15 +50,40 @@ app.post("/urls/:shortURL/submit", (req, res) => {
   res.redirect(`/urls/${req.params.shortURL}`);
 });
 
+//on log in...
+app.post("/login", (req, res) => {
+  const emailAddress = req.body.email
+  if (checkEmail(emailAddress) === false) { //** doesn't error out if email doesnt exist
+    res.send("Error 403, email address does not exist.");
+    return;
+  }
+  for (let key in users) {
+    if(emailAddress === users[key]["email"]) {
+      if(req.body.password === users[key]["password"]) {
+        res.cookie("user_id", users[key])
+        res.redirect(`/urls`);
+      } else {
+      res.send("Error 403, password is incorrect.")
+      return;
+      } 
+    }
+  }
+})
+
 //registers new account
 app.post("/register", (req, res) => {
+  const emailAddress = req.body.email
+  if (req.body.email === "" || req.body.password === "" || checkEmail(emailAddress) === true) {
+    res.send("Error 400, email or password has been left blank. Or email aready exists.");
+    return;
+  }
   let randString = generateRandomString(6);
   users[randString] = {}; 
   users[randString]["id"] = randString;
   users[randString]["email"] = req.body.email
   users[randString]["password"] = req.body.password 
   res.cookie("user_id", users[randString])
-  //console.log(req.cookies["user_id"])
+  //console.log(req.cookies["user_id"]["email"])
   res.redirect(`/urls`);
 });
 
@@ -84,13 +103,19 @@ app.post("/urls", (req, res) => {
 
 //create the url index page
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  let templateVars = { urls: urlDatabase, user_id: req.cookies["user_id"] };
   res.render("urls_index", templateVars);
+});
+
+//creates login page
+app.get("/login", (req,res) => {
+  let templateVars = { user_id: req.cookies["user_id"] };
+  res.render("loginPage", templateVars);
 });
 
 //creates user account
 app.get("/register", (req,res) => {
-  let templateVars = { username: req.cookies["username"] };
+  let templateVars = { user_id: req.cookies["user_id"] };
   res.render("createAccount", templateVars);
 });
 
@@ -102,7 +127,7 @@ app.get("/u/:shortURL", (req, res) => {
 
 //creates the final tiny URL page
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user_id: req.cookies["user_id"] };
   res.render("urls_show", templateVars);
 });
 
@@ -127,6 +152,16 @@ function generateRandomString(length) {
      result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
+}
+
+function checkEmail(email) {
+  for (let key in users) {
+    if(email === users[key]["email"]) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
 
 // request(shortURL, function(error, response, body) {

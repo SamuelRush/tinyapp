@@ -12,18 +12,19 @@
 <!---->
         </div>
       </div>
-      <% if(!username) { %>
-      <form class="form-inline" action="/urls/login" method="POST">
-        <div class="form-group mb-2">
-          <label for="name"><b>Enter your username:</b></label>
-          <input class="form-control" type="text" name="username" style="width: 150px; margin: right">
-          <button type="login" class="btn btn-primary">Login</button>
-        </div>
-      </form>
+      <% if(!user_id) { %>
+        <form class="nav-item nav-link" action="/register" method="POST">
+          <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+              <div class="navbar-nav"> <!--** This is where the break is inbetween register and log in-->
+            <a class="nav-item nav-link" href="/register">Register</a>
+        </form>
+        <form class="nav-item nav-link" action="/login" method="POST">
+              <a class="nav-item nav-link" href="/login">Log In</a>
+        </form>
       <% } else { %>
         <form class="form-inline" action="/urls/logout" method="POST">
           <div class="form-group mb-2">
-            <label for="name"><b>Logged in as <%= username %></b></label>
+            <label for="name"><b>Logged in as <%= user_id["email"] %></b></label>
             <button type="logout" class="btn btn-primary">Logout</button>
           </div>
         </form>
